@@ -1,56 +1,56 @@
 """
-PHOENIX 07 — Geometric Trimesh Layer & Hull Design
-Batarya hücrelerinin ve paketinin dış gövde (Hull) geometrisini, 
-çeper kalınlıklarını ve hacimsel yerleşim sınırlarını hesaplayan modül.
+PHOENIX 09 — Geometric Trimesh Layer & Hull Design
+3B hücre, elektrot geometrileri ve mesh (üçgen ağ) yapısını simüle eden motor.
 """
 
-from typing import Dict, Any
-from core.material import Material
+from typing import Dict, Any, List
 
-class BatteryHull:
-    """Batarya hücresini veya paketini koruyan dış kabuk (Enclosure) sınıfı."""
+class TrimeshGenerator:
+    """Elektrotlar ve dış muhafaza için 3B mesh düğüm ve yüzey yapılarını simüle eder."""
+
+    @staticmethod
+    def generate_cube_mesh(width: float, height: float, depth: float) -> Dict[str, Any]:
+        """Verilen boyutlara göre 3B sınır kutusunun köşe noktalarını (Vertices) ve yüzeylerini hesaplar."""
+        # 3B Uzaydaki 8 köşe noktası (mm cinsinden)
+        vertices = [
+            [0, 0, 0], [width, 0, 0], [width, height, 0], [0, height, 0],
+            [0, 0, depth], [width, 0, depth], [width, height, depth], [0, height, depth]
+        ]
+        
+        # Küpü oluşturan 12 adet üçgen yüzey (Trimesh altyapısı)
+        faces = [
+            [0, 1, 2], [0, 2, 3], # Alt yüz
+            [4, 5, 6], [4, 6, 7], # Üst yüz
+            [0, 1, 5], [0, 5, 4], # Ön yüz
+            [2, 3, 7], [2, 7, 6], # Arka yüz
+            [0, 3, 7], [0, 7, 4], # Sol yüz
+            [1, 2, 6], [1, 6, 5]  # Sağ yüz
+        ]
+        
+        return {
+            "Vertex_Count": len(vertices),
+            "Face_Count": len(faces),
+            "Total_Surface_Area_mm2": 2 * (width * height + width * depth + height * depth)
+        }
+
+class BatteryGeometryEngine:
+    """Hücre içi çok katmanlı elektrot mesh yapılarını yöneten ana motor."""
     
-    def __init__(self, name: str, material: Material, wall_thickness_mm: float, internal_clearance_mm: float):
-        self.name = name
-        self.material = material                 # Gövde alaşımı (Örn: Phoenix Al-Mg Alaşımı)
-        self.wall_thickness_mm = wall_thickness_mm  # Çeper et kalınlığı
-        self.internal_clearance_mm = internal_clearance_mm # İçerideki güvenlik boşluğu payı
+    def __init__(self, width_mm: float, height_mm: float):
+        self.width_mm = width_mm
+        self.height_mm = height_mm
 
-    def calculate_envelope(self, inner_width_mm: float, inner_height_mm: float, inner_depth_mm: float) -> Dict[str, Any]:
-        """
-        İçerideki batarya hücresinin net boyutlarına göre, koruyucu gövdenin 
-        dış sınır kutusunu (Bounding Box), hacmini ve gövde ağırlığını hesaplar.
-        """
-        # İç boşluk payını ekliyoruz
-        clearance_total = self.internal_clearance_mm * 2
-        net_inner_w = inner_width_mm + clearance_total
-        net_inner_h = inner_height_mm + clearance_total
-        net_inner_d = inner_depth_mm + clearance_total
-        
-        # İç net hacim (m³ cinsinden)
-        inner_volume_m3 = (net_inner_w * 1e-3) * (net_inner_h * 1e-3) * (net_inner_d * 1e-3)
+    def generate_electrode_layers(self, anode_thick_um: float, cathode_thick_um: float) -> Dict[str, Any]:
+        """Anot ve katot katmanlarının mikro seviyedeki 3B trimesh hacim ve yüzey analizini yapar."""
+        # Mikronları milimetreye çeviriyoruz
+        anode_depth_mm = anode_thick_um * 1e-3
+        cathode_depth_mm = cathode_thick_um * 1e-3
 
-        # Dış boyutlar (Çeper kalınlığı iki taraftan eklenir)
-        shell_addition = self.wall_thickness_mm * 2
-        outer_width_mm = net_inner_w + shell_addition
-        outer_height_mm = net_inner_h + shell_addition
-        outer_depth_mm = net_inner_d + shell_addition
-        
-        # Dış toplam hacim (m³ cinsinden)
-        outer_volume_m3 = (outer_width_mm * 1e-3) * (outer_height_mm * 1e-3) * (outer_depth_mm * 1e-3)
-        
-        # Sadece gövde kabuğunun (katı metalin) kapladığı hacim
-        hull_material_volume_m3 = outer_volume_m3 - inner_volume_m3
-        
-        # Gövdenin kendi ağırlığı (Hacim * Malzeme Yoğunluğu)
-        hull_mass_kg = hull_material_volume_m3 * self.material.density
-        
-        # Hacimsel Verimlilik: İç net hacmin, toplam kaplanan dış hacme oranı
-        volumetric_efficiency = (inner_volume_m3 / outer_volume_m3) * 100
+        anode_mesh = TrimeshGenerator.generate_cube_mesh(self.width_mm, self.height_mm, anode_depth_mm)
+        cathode_mesh = TrimeshGenerator.generate_cube_mesh(self.width_mm, self.height_mm, cathode_depth_mm)
 
         return {
-            "Dış Boyutlar (G x Y x D mm)": f"{round(outer_width_mm, 1)} x {round(outer_height_mm, 1)} x {round(outer_depth_mm, 1)}",
-            "Toplam Dış Hacim (Litre)": round(outer_volume_m3 * 1000, 3),
-            "Koruyucu Gövde Ağırlığı (kg)": round(hull_mass_kg, 4),
-            "Hacimsel Paketleme Verimliliği (%)": round(volumetric_efficiency, 2)
+            "Anot 3B Mesh": anode_mesh,
+            "Katot 3B Mesh": cathode_mesh,
+            "Toplam Mesh Düğüm Noktası (Hücre İçi)": anode_mesh["Vertex_Count"] + cathode_mesh["Vertex_Count"]
         }
