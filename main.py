@@ -1,48 +1,40 @@
-"""
-PHOENIX Ana Giriş ve Test Betiği
-Yazılan bilimsel standartların ve malzeme/alaşım sisteminin doğrulanması.
-"""
-
 from core.standards import UnitConverter
 from core.material import Element, Alloy
+from core.analyzer import MaterialAnalyzer
 
 def main():
-    print("========================================")
-    print("   PHOENIX SIMULATOR - SPRINT 1 TESTI   ")
-    print("========================================\n")
+    print("==================================================")
+    print("   PHOENIX - BİLİMSEL KARAR MOTORU ÖN TESTİ       ")
+    print("==================================================\n")
 
-    # 1. Bilimsel Standartlar Testi
-    print("[1] Birim Dönüşüm Motoru Test Ediliyor...")
-    celsius_temp = 25.0
-    kelvin_temp = UnitConverter.celsius_to_kelvin(celsius_temp)
-    print(f"    Sıcaklık: {celsius_temp}°C -> {kelvin_temp} K")
-    print(f"    Batarya Kapasitesi: 2500 mAh -> {UnitConverter.mah_to_coulomb(2500):.1f} Coulomb\n")
+    # Elementleri Tanımla
+    al = Element("Alüminyum", "Al", 26.98, 2700.0, 897.0, 3.5e7)
+    mg = Element("Magnezyum", "Mg", 24.30, 1738.0, 1020.0, 2.2e7)
+    li = Element("Lityum", "Li", 6.94, 534.0, 3582.0, 1.1e7)
 
-    # 2. Element Tanımlama Testi
-    print("[2] Laboratuvar Elementleri Oluşturuluyor...")
-    # Alüminyum ve Magnezyum elementlerini gerçek fiziksel değerleriyle tanımlıyoruz
-    aluminum = Element(name="Alüminyum", symbol="Al", atomic_weight=26.98, density=2700.0, thermal_capacity=897.0, electrical_conductivity=3.5e7)
-    magnesium = Element(name="Magnezyum", symbol="Mg", atomic_weight=24.30, density=1738.0, thermal_capacity=1020.0, electrical_conductivity=2.2e7)
-    
-    print(f"    {aluminum.get_chemical_info()}")
-    print(f"    {magnesium.get_chemical_info()}\n")
+    # 1. Senaryo: Senin Düşündüğün Ekonomik Al-Mg Alaşımı
+    alloy_phoenix = Alloy("Phoenix Hafif Şasi Alaşımı", {al: 0.85, mg: 0.15})
+    analysis_phoenix = MaterialAnalyzer.analyze_alloy(alloy_phoenix)
 
-    # 3. Alaşım Hesaplama Motoru Testi
-    print("[3] Özel Alaşım Formülü Simüle Ediliyor...")
-    try:
-        # %85 Alüminyum - %15 Magnezyum alaşımı
-        custom_alloy = Alloy(
-            name="Phoenix Al-Mg Şasi Alaşımı", 
-            components={aluminum: 0.85, magnesium: 0.15}
-        )
-        print(f"    {custom_alloy.get_alloy_composition()}")
-        print(f"    {custom_alloy.get_summary()}")
-    except ValueError as e:
-        print(f"    Hata oluştu: {e}")
+    # 2. Senaryo: Teorik Olarak Harika Ama Ticari Olarak Çılgın Bir Lityum Alaşımı
+    alloy_crazy = Alloy("Teorik Yüksek Riskli Alaşım", {al: 0.30, li: 0.70})
+    analysis_crazy = MaterialAnalyzer.analyze_alloy(alloy_crazy)
 
-    print("\n========================================")
-    print("     TEST BAŞARIYLA TAMAMLANDI!      ")
-    print("========================================")
+    # SONUÇLARI KIYASLA
+    print(f"🔬 MATERYAL 1: {analysis_phoenix['Alaşım Adı']}")
+    print(f"   💰 Tahmini Maliyet: {analysis_phoenix['Hesaplanan Maliyet ($/kg)']} $/kg")
+    print(f"   ⚠️ Tedarik Riski: {analysis_phoenix['Ağırlıklı Tedarik Riski (1-10)']}/10")
+    print(f"   🎯 UYGUNLUK SKORU: {analysis_phoenix['Üretilebilirlik Uygunluk Skoru (0-100)']}/100\n")
+
+    print(f"🔬 MATERYAL 2: {analysis_crazy['Alaşım Adı']}")
+    print(f"   💰 Tahmini Maliyet: {analysis_crazy['Hesaplanan Maliyet ($/kg)']} $/kg")
+    print(f"   ⚠️ Tedarik Riski: {analysis_crazy['Ağırlıklı Tedarik Riski (1-10)']}/10")
+    print(f"   🎯 UYGUNLUK SKORU: {analysis_crazy['Üretilebilirlik Uygunluk Skoru (0-100)']}/100\n")
+
+    if analysis_phoenix['Üretilebilirlik Uygunluk Skoru (0-100)'] > analysis_crazy['Üretilebilirlik Uygunluk Skoru (0-100)']:
+        print("💡 Karar Motoru Raporu: Sürdürülebilir üretim için 1. Malzeme (Phoenix Alaşımı) çok daha avantajlı!")
+    else:
+        print("💡 Karar Motoru Raporu: Risk yüksek olsa da 2. Malzeme performans için seçilebilir.")
 
 if __name__ == "__main__":
     main()
