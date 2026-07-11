@@ -1,36 +1,45 @@
-from core.geometry import BatteryGeometryEngine
+from core.simulation import BatterySimulationEngine
 
 def main():
     print("==========================================================")
-    print("       PHOENIX GEOMETRY MESH ENGINE - SOHBET 09           ")
+    print("       PHOENIX SIMULATION ENGINE (PyBaMM) - SOHBET 10     ")
     print("==========================================================\n")
 
-    print("📐 3B Trimesh Geometri Motoru başlatılıyor...")
+    print("🚀 Hücre Dinamik Simülasyon Laboratuvarı Başlatılıyor...")
     
-    # 150mm x 100mm boyutlarında bir hücre şablonu
-    geo_engine = BatteryGeometryEngine(width_mm=150.0, height_mm=100.0)
-
-    # Parametre ismini tam olarak yazıyoruz: cathode_thick_um=70.0
-    mesh_results = geo_engine.generate_electrode_layers(anode_thick_um=50.0, cathode_thick_um=70.0)
-
-    anode_m = mesh_results["Anot 3B Mesh"]
-    cathode_m = mesh_results["Katot 3B Mesh"]
-
-    print(f"\n🔬 3B Elektrot Mesh Analiz Çıktıları:")
-    print(f"   🟥 ANOT KATMANI (3B):")
-    print(f"     └─ Düğüm Noktası (Vertex): {anode_m['Vertex_Count']}")
-    print(f"     └─ Üçgen Yüzey (Face): {anode_m['Face_Count']}")
-    print(f"     └─ Toplam Yüzey Alanı: {anode_m['Total_Surface_Area_mm2']} mm²")
+    # 5.0 Ah kapasiteli Phoenix-Gen1 prototip hücremizi tanımlıyoruz
+    cell_capacity_ah = 5.0
     
-    print(f"   🟦 KATOT KATMANI (3B):")
-    print(f"     └─ Düğüm Noktası (Vertex): {cathode_m['Vertex_Count']}")
-    print(f"     └─ Üçgen Yüzey (Face): {cathode_m['Face_Count']}")
-    print(f"     └─ Toplam Yüzey Alanı: {cathode_m['Total_Surface_Area_mm2']} mm²")
+    # SENARYO A: Standart Sürüş Deşarjı (1C Akım, 25°C Ortam Sıcaklığı)
+    print("\n📊 [SENARYO A] Standart Deşarj Testi (1C Rate)...")
+    sim_a = BatterySimulationEngine.run_discharge_profile(
+        nominal_capacity_ah=cell_capacity_ah,
+        c_rate=1.0,
+        ambient_temp_c=25.0
+    )
+    
+    print(f"   ⚡ Çekilen Akım: {sim_a['Test Akımı (A)']} A")
+    print(f"   ⏱️ Test Süresi: {sim_a['Simülasyon Süresi (sn)']} saniye")
+    print(f"   🌡️ Tepe Sıcaklık: {sim_a['Maksimum Hücre Sıcaklığı (°C)']} °C")
+    print(f"   📈 Voltaj Eğrisi (Zamanla): {sim_a['Voltaj Değişim Eğrisi (V)']} V")
+    print(f"   🚨 Termal Analiz: {sim_a['Termal Durum']}")
 
-    print(f"\n   ⚙️ Toplam Hücre İçi Düğüm Çözünürlüğü: {mesh_results['Toplam Mesh Düğüm Noktası (Hücre İçi)']} Nokta\n")
+    # SENARYO B: Agresif Hızlı Şarj / Performans Deşarjı (3C Akım, 35°C Sıcaklık)
+    print("\n🔥 [SENARYO B] Agresif Performans Testi (3C Hızlı Akım)...")
+    sim_b = BatterySimulationEngine.run_discharge_profile(
+        nominal_capacity_ah=cell_capacity_ah,
+        c_rate=3.0,
+        ambient_temp_c=35.0
+    )
+    
+    print(f"   ⚡ Çekilen Akım: {sim_b['Test Akımı (A)']} A")
+    print(f"   ⏱️ Test Süresi: {sim_b['Simülasyon Süresi (sn)']} saniye")
+    print(f"   🌡️ Tepe Sıcaklık: {sim_b['Maksimum Hücre Sıcaklığı (°C)']} °C")
+    print(f"   📈 Voltaj Eğrisi (Zamanla): {sim_b['Voltaj Değişim Eğrisi (V)']} V")
+    print(f"   🚨 Termal Analiz: {sim_b['Termal Durum']}\n")
 
     print("==========================================================")
-    print("    MESH ENTEGRASYONU TAMAM: SOHBET 09 MÜHÜRLENDİ!       ")
+    print(" SIMÜLASYON MOTORU BAĞLANDI: SOHBET 10 BAŞARIYLA TAMAM!   ")
     print("==========================================================")
 
 if __name__ == "__main__":
