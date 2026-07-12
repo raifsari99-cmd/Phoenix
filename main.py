@@ -1,38 +1,36 @@
-from core.discovery import BatteryDiscoveryEngine
-from core.reporter import ScientificDecisionEngine
+from core.optimization import BatteryOptimizationEngine
 from ai.predictor import BatteryAIPredictor
+from core.reporter import ScientificDecisionEngine
 
 def main():
     print("==========================================================")
-    print("       PHOENIX AI PREDICTOR ENGINE - SOHBET 15            ")
+    print("       PHOENIX GENETIC OPTIMIZATION ENGINE - SOHBET 16    ")
     print("==========================================================\n")
 
     target_elements = ["Li", "Ni", "Mn"]
-    print("🧬 Tasarım uzayından formüller üretiliyor ve AI süzgecine gönderiliyor...")
     
-    discovery_results = BatteryDiscoveryEngine.screening_pipeline(target_elements)
-    candidates = discovery_results["Şampiyon Adaylar Listesi"]
+    # Genetik motoru tetikliyoruz: 5 nesil boyunca popülasyonu evrimleştirecek
+    opt_results = BatteryOptimizationEngine.run_genetic_optimization(
+        elements=target_elements,
+        generations=5,
+        pop_size=10
+    )
 
-    print(f"🤖 Yapay Zekâ Modeli {len(candidates)} farklı adayı analiz ediyor...\n")
+    champion_dna = opt_results["En Optimize DNA"]
+    formula_str = "".join([f"{el}({share})" for el, share in champion_dna.items()])
 
-    for idx, formula in enumerate(candidates):
-        formula_str = "".join([f"{el}({share})" for el, share in formula.items()])
-        
-        # 1. Yapay Zekâ Tahminlerini Alıyoruz
-        ai_predictions = BatteryAIPredictor.predict_material_properties(formula)
-        
-        # 2. Klasik Bilimsel/Ekonomik Skorlamayı Alıyoruz
-        economic_analysis = ScientificDecisionEngine.evaluate_candidate(formula)
+    # Şampiyonun detay analiz raporunu alıyoruz
+    ai_report = BatteryAIPredictor.predict_material_properties(champion_dna)
+    econ_report = ScientificDecisionEngine.evaluate_candidate(champion_dna)
 
-        print(f"📊 [Aday #{idx+1} - {formula_str}]")
-        print(f"   ├─ 🔋 AI Enerji Yoğunluğu: {ai_predictions['Tahmini Enerji Yoğunluğu (Wh/kg)']} Wh/kg")
-        print(f"   ├─ 🔄 AI Çevrim Ömrü: {ai_predictions['Tahmini Çevrim Ömrü (Cycle Life)']} Döngü")
-        print(f"   ├─ 🎯 AI Model Güveni (R²): %{ai_predictions['AI Tahmin Güven İndeksi (R²)'] * 100}")
-        print(f"   └─ 💰 Ekonomik Skor: {economic_analysis['NİHAİ PHOENIX SKORU']} Puan\n")
-
-    print("==========================================================")
-    print("    YAPAY ZEKÂ MOTORU BAĞLANDI: SOHBET 15 TAMAMLANDI!      ")
-    print("==========================================================")
+    print("\n🔬 ================= EVRİMSEL ARAMA SONUCU =================")
+    print(f"   🏆 Genetik Algoritma Şampiyonu: {formula_str}")
+    print(f"   📊 Birleşik Evrim Skoru: {opt_results['En Yüksek Birleşik Skor']}")
+    print(f"   🔋 AI Tahmini Enerji Yoğunluğu: {ai_report['Tahmini Enerji Yoğunluğu (Wh/kg)']} Wh/kg")
+    print(f"   🔄 AI Tahmini Çevrim Ömrü: {ai_report['Tahmini Çevrim Ömrü (Cycle Life)']} Döngü")
+    print(f"   💰 Hammadde Maliyet Endeksi: {econ_report['Hammadde Maliyet Endeksi ($/Ton)']} $/Ton")
+    print(f"   🛠️ Üretilebilirlik Endeksi: %{econ_report['Üretilebilirlik Skoru (%)']}")
+    print("==================================================================")
 
 if __name__ == "__main__":
     main()
