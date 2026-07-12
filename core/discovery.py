@@ -1,50 +1,56 @@
 """
-PHOENIX 13 — Battery Discovery Engine (1. Aşama: Gelişmiş Kombinasyon Motoru)
-Verilen element listesinden matematiksel olarak olası tüm n-li alaşım 
-kombinasyonlarını ve kütlesel oranları dinamik olarak türetir.
+PHOENIX 13 — Battery Discovery Engine
+Girdi element kümesinden kombinasyon uzayı üreten ve optimize batarya DNA adayları oluşturan motor.
 """
 
-import itertools
-from typing import List, Dict
-from core.material import Element, Alloy
+from typing import List, Dict, Any
 
-class CombinationEngine:
-    """Her büyüklükteki element havuzundan varyasyonlar üreten evrensel motor."""
+class BatteryDiscoveryEngine:
+    """Farklı elementlerin stokiyometrik kombinasyonlarını üreterek hücre DNA adayları keşfeder."""
 
     @staticmethod
-    def generate_alloys(elements: List[Element], step: float = 0.1) -> List[Alloy]:
-        """
-        Verilen element listesindeki elemanların 2'li, 3'lü ve daha fazla kombinasyonunu
-        belirtilen adım hassasiyetiyle dinamik olarak türetir.
-        """
-        alloys = []
-        n = len(elements)
-        if n < 2:
-            return alloys
+    def generate_material_combinations(elements: List[str], step_size: float = 0.1) -> List[Dict[str, float]]:
+        """Elementlerin toplamı 1.0 (yani %100) olacak şekilde tüm olası oran kombinasyonlarını üretir."""
+        if not elements:
+            return []
+            
+        combinations: List[Dict[str, float]] = []
+        
+        # Sadece 2 veya 3 elementli kombinasyonlar için kontrollü bir tarama uzayı
+        def backtrack(index: int, current_comb: Dict[str, float], remaining_share: float):
+            if index == len(elements) - 1:
+                # Son elemente kalan tüm payı veriyoruz
+                if remaining_share >= 0:
+                    current_comb[elements[index]] = round(remaining_share, 2)
+                    combinations.append(current_comb.copy())
+                return
 
-        # Adım çözünürlüğüne göre paylaştırılacak tam sayı tamsayı parça sayısı (Örn: 0.1 için 10 parça)
-        num_steps = int(round(1.0 / step))
+            # Adım boyutuyla kombinasyon dallanması
+            steps = int(round(remaining_share / step_size)) + 1
+            for i in range(steps):
+                share = i * step_size
+                current_comb[elements[index]] = round(share, 2)
+                backtrack(index + 1, current_comb, remaining_share - share)
 
-        # 2'li kombinasyonlardan başlayıp havuzun toplam eleman sayısına kadar tüm kombinasyon boyutlarını tara
-        for r in range(2, n + 1):
-            for combo in itertools.combinations(elements, r):
-                # combo: seçilen r adet Element nesnesini içerir (Örn: (Al, Mg, Sn))
-                
-                # Toplamı num_steps olan ve r adet pozitif tam sayı barındıran tüm bölme olasılıkları
-                for partitions in itertools.product(range(1, num_steps), repeat=r):
-                    if sum(partitions) == num_steps:
-                        # Tam sayı parçaları tekrar float oranlara (%..) dönüştürüyoruz
-                        components = {}
-                        name_parts = []
-                        
-                        for el, part in zip(combo, partitions):
-                            ratio = round(part * step, 2)
-                            components[el] = ratio
-                            name_parts.append(f"{el.symbol}{int(ratio*100)}")
-                        
-                        try:
-                            alloy_name = f"Alaşım_{'_'.join(name_parts)}"
-                            alloys.append(Alloy(alloy_name, components))
-                        except ValueError:
-                            continue
-        return alloys
+        backtrack(0, {}, 1.0)
+        return combinations
+
+    @staticmethod
+    def screening_pipeline(elements: List[str]) -> Dict[str, Any]:
+        """Üretilen ham kombinasyonları filtreler ve kararlı alaşım adaylarını ayıklar."""
+        raw_combinations = BatteryDiscoveryEngine.generate_material_combinations(elements, step_size=0.2)
+        filtered_candidates: List[Dict[str, float]] = []
+
+        for comb in raw_combinations:
+            # Mühendislik Filtresi: Herhangi bir elementin %0 olması veya tek bir elementin %100 baskın olmasını istemiyoruz (Alaşım Arıyoruz)
+            has_pure_element = any(share >= 1.0 for share in comb.values())
+            has_empty_element = any(share <= 0.0 for share in comb.values())
+            
+            if not has_pure_element and not has_empty_element:
+                filtered_candidates.append(comb)
+
+        return {
+            "Toplam Üretilen Formül Uzayı": len(raw_combinations),
+            "Filtreden Geçen Alaşım Adayı Sayısı": len(filtered_candidates),
+            "Şampiyon Adaylar Listesi": filtered_candidates
+        }

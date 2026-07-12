@@ -1,51 +1,30 @@
-from core.simulation import BatterySimulationEngine
-from validation.validation_framework import ValidationFramework 
-from visualization.plotter import BatteryVisualizer
+from core.discovery import BatteryDiscoveryEngine
 
 def main():
     print("==========================================================")
-    print("       PHOENIX 3D VISUALIZATION ENGINE - SOHBET 12        ")
+    print("       PHOENIX BATTERY DISCOVERY ENGINE - SOHBET 13        ")
     print("==========================================================\n")
 
-    cell_capacity_ah = 5.0
-    cell_width = 150.0
-    cell_height = 100.0
-
-    # 1. Kalibre Edilmiş Simülasyondan Gerçekçi Verileri Alıyoruz
-    print("🏃 Simülasyon motoru kalibre edilmiş termal verileri üretiyor...")
-    sim_3c = BatterySimulationEngine.run_discharge_profile(
-        nominal_capacity_ah=cell_capacity_ah, 
-        c_rate=3.0, 
-        ambient_temp_c=25.0
-    )
+    # Keşif motoruna test etmek istediğimiz element kombinasyon setini veriyoruz
+    # Örn: Lityum (Li), Nikel (Ni), Manganez (Mn) tabanlı deneysel bir alaşım arayışı
+    target_elements = ["Li", "Ni", "Mn"]
     
-    max_temp = sim_3c["Maksimum Hücre Sıcaklığı (°C)"]
-    print(f"🔥 Simülasyondan Gelen Tepe Sıcaklık (3C Rejimi): {max_temp} °C")
-
-    # 2. 3B ISI HARİTASI RENDER KATMANI
-    print("\n🖥️ 3B Yüzey Isı Haritası Dağılımı Hesaplanıyor...")
-    heat_map = BatteryVisualizer.render_3d_heat_map(
-        width_mm=cell_width,
-        height_mm=cell_height,
-        max_temp_c=max_temp,
-        c_rate=3.0
-    )
+    print(f"🧬 Elementer Uzay Taraması Başlatılıyor: {target_elements}...")
     
-    print(f"   ├─ Çözünürlük: {heat_map['Grid_Boyutu']}")
-    print(f"   ├─ Tepe Noktası: {heat_map['Tepe Noktası Termal Yükü']}")
-    print("   └─ 3D Yüzey Sıcaklık Matrisi Dağılımı:")
-    for row in heat_map["Yüzey Sıcaklık Matrisi (°C)"]:
-        print(f"        {row}")
-
-    # 3. İYON AKIŞ VAKTÖRLERİ SİMÜLASYONU
-    print("\n🌌 Elektrotlar Arası İyon Akış Çizgileri Dinamiği:")
-    flux_vectors = BatteryVisualizer.simulate_ion_flux_vectors(c_rate=3.0)
-    for vector in flux_vectors[:3]: # İlk 3 örnek vektörü ekrana basıyoruz
-        print(f"   ⚡ {vector}")
-    print(f"   ... Toplam {len(flux_vectors)} aktif iyon akış vektör çizgisi render edildi.")
+    discovery_results = BatteryDiscoveryEngine.screening_pipeline(target_elements)
+    
+    print(f"\n📊 Keşif Hattı (Pipeline) Özet Çıktıları:")
+    print(f"   ├─ Toplam Matematiksel Kombinasyon: {discovery_results['Toplam Üretilen Formül Uzayı']} adet")
+    print(f"   └─ Filtreden Geçen Kararlı Alaşım Adayı: {discovery_results['Filtreden Geçen Alaşım Adayı Sayısı']} adet")
+    
+    print("\n🔬 Keşfedilen ve Test Edilmeye Hazır Batarya DNA'ları (İlk Örnekler):")
+    for idx, candidate in enumerate(discovery_results["Şampiyon Adaylar Listesi"]):
+        # Formülü şık bir string haline getiriyoruz (Örn: Li(0.2)Ni(0.4)Mn(0.4))
+        formula_str = "".join([f"{el}({share})" for el, share in candidate.items()])
+        print(f"   🎯 DNA #{idx+1}: {formula_str}")
 
     print("\n==========================================================")
-    print("   GÖRSELLEŞTİRME ENTEGRE EDİLDİ: SOHBET 12 MÜHÜRLÜ!      ")
+    print("   DISCOVERY ENGINE DEVREDE: SOHBET 13 BAŞARIYLA TAMAM!   ")
     print("==========================================================")
 
 if __name__ == "__main__":
