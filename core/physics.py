@@ -1,6 +1,6 @@
 """
-PHOENIX 07 — Elektrokimyasal Fizik Motoru
-Hücre içi elektron akışı, iyon hızı, voltaj, akım ve direnç denklemleri.
+PHOENIX 07 — Elektrokimyasal Fizik Motoru (Kalibre Edilmiş Versiyon)
+Hücre içi elektron akışı, iyon hızı, voltaj, akım, iç direnç ve gelişmiş termal denklemler.
 """
 
 import math
