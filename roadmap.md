@@ -14,11 +14,13 @@ Sohbet 06: Battery DNA & Digital Twin (Battery, Anode, Cathode, Electrolyte sın
 Sohbet 07: Fizik Motoru (Elektron akışı, iyon hızı, voltaj, akım ve direnç denklemlerinin çekirdeğe işlenmesi).  [ ] 
 Sohbet 08: Kimya Motoru (Oksidasyon, redüksiyon, yan reaksiyonlar ve dendrit oluşumu hesaplamaları).  
 
-🟣 SPRINT 3: Geometri ve Simülasyon Motoru[ ] Sohbet 09: Geometri Motoru (Trimesh entegrasyonu, 3B hücre/elektrot geometrileri ve mesh yapısı).  [ ] 
+🟣 SPRINT 3: Geometri ve Simülasyon Motoru[ ] 
+Sohbet 09: Geometri Motoru (Trimesh entegrasyonu, 3B hücre/elektrot geometrileri ve mesh yapısı).  [ ] 
 Sohbet 10: Simülasyon Motoru (PyBaMM entegrasyonu; şarj, deşarj, hızlı şarj ve sıcaklık test senaryoları).  [ ] 
 Sohbet 11: Validation Framework (Simülasyon sonuçlarının gerçek laboratuvar verileriyle kıyaslanması ve Güven Skoru üretimi).  
 
-🟤 SPRINT 4: Görselleştirme ve Keşif Motoru[ ] Sohbet 12: Visualization (PyVista entegrasyonu ile 3B ısı haritası ve iyon akışının grafiksel gösterimi).  [ ] 
+🟤 SPRINT 4: Görselleştirme ve Keşif Motoru[ ] 
+Sohbet 12: Visualization (PyVista entegrasyonu ile 3B ısı haritası ve iyon akışının grafiksel gösterimi).  [ ] 
 Sohbet 13: Battery Discovery Engine (Tasarım uzayında batarya DNA kombinasyonlarının otomatik üretilmesi).  [ ] 
 Sohbet 14: Scientific Decision Engine (Fiziksel/kimyasal filtreler, maliyet ve üretilebilirlik süzgeci).  
 
