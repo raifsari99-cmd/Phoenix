@@ -1,66 +1,53 @@
 """
-PHOENIX 19 - Raporlama Motoru (Gelişmiş Versiyon)
-Keşif ve geometrik tasarım süreçlerinin sonuçlarını profesyonel dokümantasyon formatında kaydeder.
+PHOENIX 14 — Scientific Decision & Reporting Engine
+Keşfedilen batarya DNA kombinasyonlarını maliyet, üretilebilirlik ve fizik/kimya süzgecinden geçirerek skorlar.
 """
 
-import os
-from datetime import datetime
+from typing import Dict, Any, List
 
-class DiscoveryReporter:
-    """Sonuçları analiz ederek docs/ klasörü altında şık raporlar üretir."""
+class ScientificDecisionEngine:
+    """Alaşım adaylarını endüstriyel ve bilimsel kriterlere göre puanlayan karar mekanizması."""
+
+    # Ton başına ortalama elementel maliyet indeksleri (Dolar cinsinden teorik piyasa verisi)
+    ELEMENT_COST_INDEX = {
+        "Li": 45000.0,  # Lityum: Stratejik ve pahalı
+        "Ni": 18000.0,  # Nikel: Performans artırır, maliyeti orta-yüksek
+        "Mn": 2500.0,   # Manganez: Ucuz ve kararlı
+    }
 
     @staticmethod
-    def generate_markdown_report(analyzed_alloys: list, pool_symbols: list) -> str:
-        os.makedirs("docs", exist_ok=True)
-        filename = "docs/PHOENIX_DISCOVERY_REPORT_STAGE_1.md"
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    def evaluate_candidate(formula: Dict[str, float]) -> Dict[str, Any]:
+        """Bir formül adayının maliyetini, üretilebilirliğini ve nihai bilimsel skorunu hesaplar."""
         
-        with open(filename, "w", encoding="utf-8") as f:
-            f.write("# 🔬 PHOENIX DISCOVERY - 1. AŞAMA KEŞİF RAPORU\n\n")
-            f.write(f"**Rapor Tarihi:** {current_time}  \n")
-            f.write(f"**Analiz Edilen Element Havuzu:** {', '.join(pool_symbols)}  \n")
-            f.write(f"**Toplam Taranan Varyasyon Sayısı:** {len(analyzed_alloys)}\n\n")
-            f.write("---\n\n")
-            f.write("## 🏆 TOP 5 ŞAMPİYON FORMÜL\n\n")
-            f.write("| Sıra | Alaşım Adı | Maliyet ($/kg) | Tedarik Riski (1-10) | UYGUNLUK SKORU |\n")
-            f.write("| :--- | :--- | :---: | :---: | :---: |\n")
-            for index, res in enumerate(analyzed_alloys[:5], 1):
-                f.write(f"| {index} | **{res['Alaşım Adı']}** | {res['Hesaplanan Maliyet ($/kg)']} | {res['Ağırlıklı Tedarik Riski (1-10)']} | **{res['Üretilebilirlik Uygunluk Skoru (0-100)']}/100** |\n")
-        return filename
+        # 1. Hammadde Maliyet Hesabı (Ağırlıklı Ortalama)
+        raw_material_cost_score = 0.0
+        for element, share in formula.items():
+            cost = ScientificDecisionEngine.ELEMENT_COST_INDEX.get(element, 10000.0)
+            raw_material_cost_score += cost * share
 
-    @staticmethod
-    def generate_geometry_report(hull_name: str, alloy_name: str, density: float, inner_dim: str, envelope: dict) -> str:
-        """Sohbet 07 kapsamında fiziksel muhafaza ve mekanik zarf raporunu üretir."""
-        os.makedirs("docs", exist_ok=True)
-        filename = "docs/PHOENIX_GEOMETRIC_HULL_REPORT.md"
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # 2. Üretilebilirlik Skoru (Örn: Çok yüksek Lityum oranı üretimi zorlaştırır/hassastır)
+        # Dengeli formüller endüstriyel olarak daha rahat üretilir.
+        li_share = formula.get("Li", 0.0)
+        if li_share > 0.5:
+            manufacturability_score = 60.0  # Yüksek reaktivite riskinden dolayı düşük puan
+        else:
+            manufacturability_score = 90.0  # Kararlı üretim aralığı
 
-        with open(filename, "w", encoding="utf-8") as f:
-            f.write(f"# 🛡️ PHOENIX GEOMETRIC HULL DESIGN REPORT (SOHBET 07)\n\n")
-            f.write(f"**Rapor Tarihi:** {current_time}  \n")
-            f.write(f"**Mekanik Tasarım Standardı:** FEA (Sonlu Elemanlar Analizi) Ön Girdisi  \n\n")
-            f.write("---\n\n")
-            
-            f.write("## 🔩 1. MALZEME VE FİZİKSEL ÖZELLİKLER\n")
-            f.write(f"* **Seçilen Şasi Alaşımı:** {alloy_name}\n")
-            f.write(f"* **Hesaplanan Alaşım Yoğunluğu:** {round(density, 2)} kg/m³\n")
-            f.write(f"* **Zırh Tipi / Muhafaza Adı:** {hull_name}\n\n")
-            
-            f.write("---\n\n")
-            f.write("## 📐 2. GEOMETRİK MEKANİK ZARF VE HACİM VERİLERİ\n\n")
-            f.write("| Parametre | Simülasyon Çıktısı |\n")
-            f.write("| :--- | :--- |\n")
-            f.write(f"| **İç Hücre Çekirdek Boyutları** | {inner_dim} mm |\n")
-            f.write(f"| **Hesaplanan Dış Ölçüler** | {envelope['Dış Boyutlar (G x Y x D mm)']} mm |\n")
-            f.write(f"| **Toplam Dış Hacim** | {envelope['Toplam Dış Hacim (Litre)']} Litre |\n")
-            f.write(f"| **Sadece Koruyucu Gövde Ağırlığı** | {envelope['Koruyucu Gövde Ağırlığı (kg)']} kg |\n")
-            f.write(f"| **Hacimsel Paketleme Verimliliği** | **%{envelope['Hacimsel Paketleme Verimliliği (%)']}** |\n\n")
-            
-            f.write("---\n\n")
-            f.write("## 💡 3. MÜHENDİSLİK DEĞERLENDİRME NOTU\n")
-            f.write(f"> PHOENIX-Gen1 hücresi için tasarlanan **{hull_name}** dış muhafazası, metalurjik hafiflik avantajı ")
-            f.write(f"sayesinde **{envelope['Koruyucu Gövde Ağırlığı (kg)']} kg** gibi son derece optimize bir ek yük ile hücreyi sarmalamıştır. ")
-            f.write(f"**%{envelope['Hacimsel Paketleme Verimliliği (%)']}** seviyesindeki paketleme verimliliği, modüler şasi yerleşimi ")
-            f.write("ve CARLA simülasyon ortamındaki araç ağırlık dağılımı testleri için mükemmel bir geometrik taban sunmaktadır.\n")
-            
-        return filename
+        # 3. Elektrokimyasal Performans Projeksiyonu (Teorik Enerji Yoğunluğu Çarpanı)
+        # Nikel oranı enerji yoğunluğunu artırırken, Manganez ömrü ve kararlılığı artırır.
+        ni_share = formula.get("Ni", 0.0)
+        mn_share = formula.get("Mn", 0.0)
+        performance_score = (ni_share * 100.0) + (mn_share * 50.0) + (li_share * 80.0)
+
+        # 4. Nihai Phoenix Skoru (Scientific Score)
+        # Performans ve üretilebilirlik yüksek, maliyet düşük olmalı.
+        # Maliyeti 0-100 arasına normalize eden basit ters orantı
+        cost_penalty = min((raw_material_cost_score / 50000.0) * 100, 40)
+        final_score = (performance_score * 0.4) + (manufacturability_score * 0.4) - cost_penalty
+
+        return {
+            "Hammadde Maliyet Endeksi ($/Ton)": round(raw_material_cost_score, 2),
+            "Üretilebilirlik Skoru (%)": round(manufacturability_score, 2),
+            "Teorik Performans Skoru": round(performance_score, 2),
+            "NİHAİ PHOENIX SKORU": round(max(final_score, 0.0), 2)
+        }

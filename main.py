@@ -1,31 +1,45 @@
 from core.discovery import BatteryDiscoveryEngine
+from core.reporter import ScientificDecisionEngine
 
 def main():
     print("==========================================================")
-    print("       PHOENIX BATTERY DISCOVERY ENGINE - SOHBET 13        ")
+    print("       PHOENIX SCIENTIFIC DECISION ENGINE - SOHBET 14      ")
     print("==========================================================\n")
 
-    # Keşif motoruna test etmek istediğimiz element kombinasyon setini veriyoruz
-    # Örn: Lityum (Li), Nikel (Ni), Manganez (Mn) tabanlı deneysel bir alaşım arayışı
     target_elements = ["Li", "Ni", "Mn"]
+    print(f"🧬 Tasarım uzayından alaşım kombinasyonları çekiliyor...")
     
-    print(f"🧬 Elementer Uzay Taraması Başlatılıyor: {target_elements}...")
-    
+    # Keşif motorundan süzülen 6 kararlı alaşım adayını alıyoruz
     discovery_results = BatteryDiscoveryEngine.screening_pipeline(target_elements)
-    
-    print(f"\n📊 Keşif Hattı (Pipeline) Özet Çıktıları:")
-    print(f"   ├─ Toplam Matematiksel Kombinasyon: {discovery_results['Toplam Üretilen Formül Uzayı']} adet")
-    print(f"   └─ Filtreden Geçen Kararlı Alaşım Adayı: {discovery_results['Filtreden Geçen Alaşım Adayı Sayısı']} adet")
-    
-    print("\n🔬 Keşfedilen ve Test Edilmeye Hazır Batarya DNA'ları (İlk Örnekler):")
-    for idx, candidate in enumerate(discovery_results["Şampiyon Adaylar Listesi"]):
-        # Formülü şık bir string haline getiriyoruz (Örn: Li(0.2)Ni(0.4)Mn(0.4))
-        formula_str = "".join([f"{el}({share})" for el, share in candidate.items()])
-        print(f"   🎯 DNA #{idx+1}: {formula_str}")
+    candidates = discovery_results["Şampiyon Adaylar Listesi"]
 
-    print("\n==========================================================")
-    print("   DISCOVERY ENGINE DEVREDE: SOHBET 13 BAŞARIYLA TAMAM!   ")
-    print("==========================================================")
+    print(f"🔬 Toplam {len(candidates)} kararlı aday Bilimsel Karar Süzgecine giriyor...\n")
+
+    champion_formula = None
+    champion_score = -1.0
+    champion_report = {}
+
+    for idx, formula in enumerate(candidates):
+        formula_str = "".join([f"{el}({share})" for el, share in formula.items()])
+        
+        # Karar motorunu tetikliyoruz
+        analysis = ScientificDecisionEngine.evaluate_candidate(formula)
+        score = analysis["NİHAİ PHOENIX SKORU"]
+
+        print(f"   📊 Aday #{idx+1} [{formula_str}] ➔ Skor: {score} | Maliyet: {analysis['Hammadde Maliyet Endeksi ($/Ton)']} $/Ton")
+
+        # En yüksek puanlı adayı hafızada tutuyoruz
+        if score > champion_score:
+            champion_score = score
+            champion_formula = formula_str
+            champion_report = analysis
+
+    print("\n👑 ==================== ŞAMPİYON ADAY SEÇİLDİ ====================")
+    print(f"   🏆 En Optimize Formül: {champion_formula}")
+    print(f"   🎯 Phoenix Skor Derecesi: {champion_score} / 100")
+    print(f"   💰 Tahmini Hammadde Maliyeti: {champion_report['Hammadde Maliyet Endeksi ($/Ton)']} $/Ton")
+    print(f"   🛠️ Üretilebilirlik Endeksi: %{champion_report['Üretilebilirlik Skoru (%)']}")
+    print("==================================================================")
 
 if __name__ == "__main__":
     main()
