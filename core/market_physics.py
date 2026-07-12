@@ -47,20 +47,25 @@ class MarketAndPhysicsCore:
 
     @staticmethod
     def determine_electrochemical_role(formula: Dict[str, float]) -> Dict[str, Any]:
-        """Alaşımın elementer potansiyel ağırlığına göre en verimli olacağı rolü ve katalizör kararlılığını belirler."""
+        """Alaşımın elementer potansiyel ağırlığına ve lityum fraksiyonuna göre rol tespiti yapar."""
         weighted_potential = 0.0
-        has_precious = any(el in ["Au", "Pt", "Pd"] for el in formula.keys())
+        has_precious = any(el in ["Au", "Pt", "Pd", "Ir"] for el in formula.keys())
+        li_share = formula.get("Li", 0.0)
         
         for element, share in formula.items():
             potential = MarketAndPhysicsCore.ELECTRODE_POTENTIALS.get(element, 0.0)
             weighted_potential += potential * share
 
-        if weighted_potential < -1.5:
+        # EĞER yüksek oranda Lityum içeren hafif bir alaşımsa, net olarak ANOT'tur!
+        if li_share >= 0.30:
+            role = "DEVRİMCİ ULTRA HAFİF ANOT (Mekanik Kararlı Negatif Elektrot)"
+            efficiency_multiplier = 0.96
+        elif weighted_potential < -1.5:
             role = "ANOT (Yüksek Voltaj Kapasiteli Negatif Elektrot)"
             efficiency_multiplier = 0.95
         elif -1.5 <= weighted_potential <= 0.2:
             if has_precious:
-                role = "YÜKSEK VERİMLİ KATALİZÖR (Hızlı Elektron Reaksiyon Yüzeyi)"
+                role = "YÜKSEK VERİMLİ SÜPER KATALİZÖR (Hızlı Elektron Reaksiyon Yüzeyi)"
                 efficiency_multiplier = 0.98
             else:
                 role = "DENGELİ MATRİS / KATALİZÖR DESTEK YAPISI"
